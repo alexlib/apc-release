@@ -93,6 +93,7 @@ Processing(1).Correlation.SpectralWeighting.Method = 'apc';
 Processing(1).Correlation.SpectralWeighting.APC.Shuffle.Range = [0, 0];
 Processing(1).Correlation.SpectralWeighting.APC.Shuffle.Step = [0, 0];
 Processing(1).Correlation.SpectralWeighting.APC.Method = 'magnitude';
+Processing(1).Correlation.SpectralWeighting.APC.DoTemporalEnsemble = true;
 
 % Spectral filtering parameters
 % These are things like the phase median filter,

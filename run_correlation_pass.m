@@ -145,7 +145,23 @@ dp_x_full = nan(num_regions_full, num_pairs_correlate);
 % Read whether or not to do ensemble
 do_ensemble = JOBFILE.Processing(PASS_NUMBER).Correlation.Ensemble.DoEnsemble;
 
-% Calculate the temporal ensemble planes 
+% Read the spectral weighting field from the job file.
+spectral_weighting_field = JOBFILE.Processing(PASS_NUMBER).Correlation.SpectralWeighting;
+
+% Default to not doing the APC temporal ensemble.
+apc_do_temporal_ensemble = false;
+% Calculate the temporal ensemble planes
+if isfield(spectral_weighting_field, 'APC')
+   if isfield(spectral_weighting_field.APC, 'DoTemporalEnsemble')
+       apc_do_temporal_ensemble = spectral_weighting_field.APC.DoTemporalEnsemble;
+   end
+end
+
+% Calculate the APC filters as
+% temporal ensemble if requested
+if apc_do_temporal_ensemble
+    JOBFILE = calculate_apc_temporal_ensemble_filters(JOBFILE, PASS_NUMBER);    
+end
 
 % Loop over all the images
 for n = 1 : num_pairs_correlate
