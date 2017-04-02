@@ -147,7 +147,6 @@ do_ensemble = JOBFILE.Processing(PASS_NUMBER).Correlation.Ensemble.DoEnsemble;
 
 % Calculate the temporal ensemble planes 
 
-
 % Loop over all the images
 for n = 1 : num_pairs_correlate
     
@@ -351,8 +350,16 @@ for n = 1 : num_pairs_correlate
           
         % Switch between spatial and spectral ensemble
         switch lower(ensemble_domain_string)
-            case 'spatial'
-                % For spatial ensemble, take the inverse
+            
+            case 'spectral'                   
+                % For spectral ensemble, add the current complex
+                % correlation to the ensemble complex correlation
+                cross_corr_array(:, :, k) = ...
+                    cross_corr_array(:, :, k) + ...
+                    cross_corr_spectral;
+                       
+            otherwise
+                % For spatial ensemble or no ensemble, take the inverse
                 % FT of the spectral correlation (i.e., the spatial
                 % correlation) and add this to the purely real 
                 % ensemble correlation
@@ -417,16 +424,14 @@ for n = 1 : num_pairs_correlate
                 % Add this correlation to the spatial ensemble
                 cross_corr_array(:, :, k) = ...
                     cross_corr_array(:, :, k) + cross_corr_spatial;
-  
-            case 'spectral'                   
-                % For spectral ensemble, add the current complex
-                % correlation to the ensemble complex correlation
-                cross_corr_array(:, :, k) = ...
-                    cross_corr_array(:, :, k) + ...
-                    cross_corr_spectral;
         end 
     end
+    
+    % End timer on the loop over
+    % number of regions to correlate.
     t2 = toc(t1);
+    
+    % Inform the user
     fprintf(1, 'Correlated %d regions in %02f seconds.\n', ...
         num_regions_correlate, t2);
     

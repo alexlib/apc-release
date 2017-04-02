@@ -68,15 +68,15 @@ Processing(1).Grid.Mask.Name = 'imgAmask3.tif';
 
 % Frame parameters.
 Processing(1).Frames.Start = 1;
-Processing(1).Frames.End = 10;
+Processing(1).Frames.End = 2;
 Processing(1).Frames.Step = 1;
 
 % Correlation parameters
 Processing(1).Correlation.Step = 0;
 Processing(1).Correlation.Ensemble.DoEnsemble = 0;
 Processing(1).Correlation.Ensemble.NumberOfPairs = 1;
-Processing(1).Correlation.Ensemble.Domain = 'spectral';
-Processing(1).Correlation.Ensemble.Direction = 'temporal';
+Processing(1).Correlation.Ensemble.Domain = 'none';
+Processing(1).Correlation.Ensemble.Direction = 'none';
 
 % Parameters specific to APC
 % Processing(1).Correlation.APC.FilterDiameterUpperBound = 6;
@@ -116,10 +116,10 @@ Processing(1).Correlation.DisplacementEstimate. ...
 
 % Estimated particle diameter
 Processing(1).Correlation.EstimatedParticleDiameter = 6;
-
- % Options for spectral displacement estimate
-Processing(1).Correlation.DisplacementEstimate. ...
-    Spectral.UnwrappingMethod = 'goldstein';
+% 
+%  % Options for spectral displacement estimate
+% Processing(1).Correlation.DisplacementEstimate. ...
+%     Spectral.UnwrappingMethod = 'goldstein';
 
 % Parameters for vector validation
 Processing(1).Validation.DoValidation = 1;
