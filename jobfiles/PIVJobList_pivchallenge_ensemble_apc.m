@@ -1,4 +1,4 @@
-function JOBLIST = PIVJobList_pivchallenge()
+function JOBLIST = PIVJobList_pivchallenge_ensemble_apc()
 
 % Number of passes to run
 num_passes_spec = 2;
@@ -25,7 +25,7 @@ num_passes_total = length(region_height_list);
 JobOptions.NumberOfPasses = 0;
 
 % Data: Input images
-Data.Inputs.Images.Directory = '/Users/matthewgiarra/Documents/School/VT/Research/Aether/piv_test_images/pivchallenge/2014/A/images/proc/ghost';
+Data.Inputs.Images.Directory = '/Users/matthewgiarra/Documents/School/VT/Research/Aether/data/piv/piv_challenge/2014/A/images/proc/ghost';
 % Data.Inputs.Images.Directory = '/Users/matthewgiarra/Documents/School/VT/Research/Aether/piv_test_images/poiseuille_diffusion_0.00/raw';
 Data.Inputs.Images.BaseName = 'A_deghost_';
 % Data.Inputs.Images.BaseName = 'poiseuille_diffusion_0.00_';
@@ -35,14 +35,14 @@ Data.Inputs.Images.Trailers = {'_a', '_b'};
 % Data.Inputs.Images.Trailers = {''};
 
 % Data: Input vectors for initializing, e.g., image deformation.
-Data.Inputs.Vectors.Directory = '/Users/matthewgiarra/Documents/School/VT/Research/Aether/piv_test_images/pivchallenge/2014/A/vect/test';
-Data.Inputs.Vectors.BaseName = 'A_deghost_';
+Data.Inputs.Vectors.Directory = '';
+Data.Inputs.Vectors.BaseName = '';
 Data.Inputs.Vectors.Digits = 5;
-Data.Inputs.Vectors.Extension = '.mat';
+Data.Inputs.Vectors.Extension = '';
 
 % Data: output vectors
-Data.Outputs.Vectors.Directory = '/Users/matthewgiarra/Documents/School/VT/Research/Aether/piv_test_images/pivchallenge/2014/A/vect/test';
-Data.Outputs.Vectors.BaseName = 'A_deghost_from_source_';
+Data.Outputs.Vectors.Directory = '/Users/matthewgiarra/Documents/School/VT/Research/Aether/data/piv/piv_challenge/2014/A/vect/test';
+Data.Outputs.Vectors.BaseName = 'A_deghost_';
 Data.Outputs.Vectors.Digits = 5;
 Data.Outputs.Vectors.Extension = '.mat';
 
@@ -62,11 +62,9 @@ Processing(1).Grid.Shift.Y = -16;
 Processing(1).Grid.Shift.X = 0;
 Processing(1).Grid.Buffer.Y = 0;
 Processing(1).Grid.Buffer.X = 0;
-Processing(1).Grid.Mask.Directory = '/Users/matthewgiarra/Documents/School/VT/Research/Aether/piv_test_images/pivchallenge/2014/A/images/masks';
+Processing(1).Grid.Mask.Directory = '/Users/matthewgiarra/Documents/School/VT/Research/Aether/data/piv/piv_challenge/2014/A/images/masks';
 Processing(1).Grid.Mask.Name = 'imgAmask3.tif';
-% Processing(1).Grid.Mask.Name = 'mask_jet_subregion.tif';
-% Processing(1).Grid.Mask.Directory = '';
-% Processing(1).Grid.Mask.Name = '';
+
 
 % Frame parameters.
 Processing(1).Frames.Start = 1;
@@ -74,26 +72,54 @@ Processing(1).Frames.End = 10;
 Processing(1).Frames.Step = 1;
 
 % Correlation parameters
-Processing(1).Correlation.Method = 'apc';
 Processing(1).Correlation.Step = 0;
-% Processing(1).Correlation.Step = 1;
 Processing(1).Correlation.Ensemble.DoEnsemble = 0;
 Processing(1).Correlation.Ensemble.NumberOfPairs = 1;
 Processing(1).Correlation.Ensemble.Domain = 'spectral';
 Processing(1).Correlation.Ensemble.Direction = 'temporal';
 
 % Parameters specific to APC
-Processing(1).Correlation.APC.FilterDiameterUpperBound = 6;
-Processing(1).Correlation.APC.Shuffle.Range = [0, 0];
-Processing(1).Correlation.APC.Shuffle.Step = [0, 0];
-Processing(1).Correlation.APC.Method = 'magnitude';
+% Processing(1).Correlation.APC.FilterDiameterUpperBound = 6;
+% Processing(1).Correlation.APC.Shuffle.Range = [0, 0];
+% Processing(1).Correlation.APC.Shuffle.Step = [0, 0];
+% Processing(1).Correlation.APC.Method = 'magnitude';
+% Processing(1).Correlation.APC.Ensemble = true;
 
-% Parameters specific to RPC
-Processing(1).Correlation.RPC.EffectiveDiameter = 6;
+% Parameters that apparently need to be added.
+Processing(1).Correlation.SpectralWeighting.Method = 'apc';
 
-% Subpixel fit parameters
-Processing(1).SubPixel.Method = '3-point fit';
-Processing(1).SubPixel.EstimatedParticleDiameter = 6;
+% APC Parameters
+% Parameters specific to APC
+Processing(1).Correlation.SpectralWeighting.APC.Shuffle.Range = [0, 0];
+Processing(1).Correlation.SpectralWeighting.APC.Shuffle.Step = [0, 0];
+Processing(1).Correlation.SpectralWeighting.APC.Method = 'magnitude';
+
+% Spectral filtering parameters
+% These are things like the phase median filter,
+% SVD, etc. 
+Processing(1).Correlation.SpectralFiltering.FilterList = {''};
+Processing(1).Correlation.SpectralFiltering.KernelSizeList = {''};
+
+
+% This specifies the domain in which the displacement
+% estimate is calculated ('spatial' for peak-finding/fitting 
+% or 'spectral' for SPC plane fit);
+Processing(1).Correlation.DisplacementEstimate.Domain = 'spatial';
+
+% Choose whether to run compiled codes
+Processing(1).Correlation.DisplacementEstimate. ...
+    Spectral.RunCompiled = true;
+
+% Options for spatial displacement estimate
+Processing(1).Correlation.DisplacementEstimate. ...
+    Spatial.SubPixel.Method = '3-point fit';
+
+% Estimated particle diameter
+Processing(1).Correlation.EstimatedParticleDiameter = 6;
+
+ % Options for spectral displacement estimate
+Processing(1).Correlation.DisplacementEstimate. ...
+    Spectral.UnwrappingMethod = 'goldstein';
 
 % Parameters for vector validation
 Processing(1).Validation.DoValidation = 1;

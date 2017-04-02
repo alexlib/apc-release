@@ -145,6 +145,9 @@ dp_x_full = nan(num_regions_full, num_pairs_correlate);
 % Read whether or not to do ensemble
 do_ensemble = JOBFILE.Processing(PASS_NUMBER).Correlation.Ensemble.DoEnsemble;
 
+% Calculate the temporal ensemble planes 
+
+
 % Loop over all the images
 for n = 1 : num_pairs_correlate
     
