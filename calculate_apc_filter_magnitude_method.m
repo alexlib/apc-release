@@ -36,16 +36,13 @@ function [APC_FILTER, APC_STD_Y, APC_STD_X] = ...
     APC_STD_Y = min(rpc_std_dev_y, sy);
     APC_STD_X = min(rpc_std_dev_x, sx);
     
-    % % Calculate the filter
-    %
-    % Make coordinate vectors
-    xv = (1 : region_width) - fourier_zero(region_width);
-    yv = (1 : region_height) - fourier_zero(region_height);
-    
-    % Make coordinate arrays
-    [X, Y] = meshgrid(xv, yv);
-    
-    % Calculate filter
-    APC_FILTER = exp(-X.^2 / (2 * APC_STD_X^2) - Y.^2 / (2 * APC_STD_Y^2));
+    % Calculate the filter
+    APC_FILTER = make_gaussian_spectral_filter(...
+        region_height, region_width, APC_STD_Y, APC_STD_X);
     
 end
+
+
+
+
+
