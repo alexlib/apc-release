@@ -372,8 +372,7 @@ for n = 1 : num_pairs_correlate
                 % correlation to the ensemble complex correlation
                 cross_corr_array(:, :, k) = ...
                     cross_corr_array(:, :, k) + ...
-                    cross_corr_spectral;
-                       
+                    cross_corr_spectral;            
             otherwise
                 % For spatial ensemble or no ensemble, take the inverse
                 % FT of the spectral correlation (i.e., the spatial
@@ -396,12 +395,35 @@ for n = 1 : num_pairs_correlate
                         % as the spectral filter. 
                         spectral_filter = spectral_corr_mag;
                         
-                    case 'apc'                    
-                        % Automatically calculate the APC filter.
-                        spectral_filter = ...
-                            calculate_apc_filter(cross_corr_spectral, ...
-                            particle_diameter, apc_method);
-                        
+                    case 'apc'                                            
+                        % Determine whether to read pre-computed
+                        % values for the APC filter or to
+                        % calculate them here.
+                        if apc_do_temporal_ensemble
+                            
+                            % Read the horizontal and vertical
+                            % standard deviations of the Gaussian
+                            % spectral filter, which was pre-computed
+                            % from the ensemble correlation.
+                            apc_std_x = JOBFILE.Processing(PASS_NUMBER). ...
+                                Results.Filtering.APC.Diameter.X(k, n);
+                            apc_std_y = JOBFILE.Processing(PASS_NUMBER). ...
+                                Results.Filtering.APC.Diameter.Y(k, n);
+                            
+                            % Calculate the filter
+                            spectral_filter = ...
+                                make_gaussian_spectral_filter(...
+                                region_height, region_width, ...
+                                apc_std_y, apc_std_x);                           
+                        else
+                            
+                            % Automatically calculate the APC filter.
+                            spectral_filter = ...
+                                calculate_apc_filter(...
+                                cross_corr_spectral, ...
+                                particle_diameter, apc_method);
+                        end
+                         
                     case 'rpc'
                         % If RPC was specified then 
                         % set the spectral filter to 

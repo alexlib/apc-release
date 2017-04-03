@@ -68,7 +68,7 @@ Processing(1).Grid.Mask.Name = 'imgAmask3.tif';
 
 % Frame parameters.
 Processing(1).Frames.Start = 1;
-Processing(1).Frames.End = 2;
+Processing(1).Frames.End = 3;
 Processing(1).Frames.Step = 1;
 
 % Correlation parameters
@@ -93,7 +93,7 @@ Processing(1).Correlation.SpectralWeighting.Method = 'apc';
 Processing(1).Correlation.SpectralWeighting.APC.Shuffle.Range = [0, 0];
 Processing(1).Correlation.SpectralWeighting.APC.Shuffle.Step = [0, 0];
 Processing(1).Correlation.SpectralWeighting.APC.Method = 'magnitude';
-Processing(1).Correlation.SpectralWeighting.APC.DoTemporalEnsemble = false;
+Processing(1).Correlation.SpectralWeighting.APC.DoTemporalEnsemble = true;
 
 % Spectral filtering parameters
 % These are things like the phase median filter,

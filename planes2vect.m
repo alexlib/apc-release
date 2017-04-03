@@ -66,6 +66,13 @@ particle_diameter = ...
 % so that the parallel loop can run
 spectral_weighting_filter_static = nan(region_height, region_width);
 
+% Initialize a flag specifying whether
+% spectral filters were pre-computed.
+apc_do_temporal_ensemble = false;
+
+% Filters were pre computed?
+filters_were_pre_computed = false;
+
 % Method specific options
 switch lower(spectral_weighting_method_string)
     case 'rpc'   
@@ -81,7 +88,29 @@ switch lower(spectral_weighting_method_string)
         % Read the APC method
         apc_method = JOBFILE.Processing(PASS_NUMBER). ...
             Correlation.SpectralWeighting.APC.Method;
+        
+        % Check whether the APC filters were pre computed.
+        apc_do_temporal_ensemble = JOBFILE.Processing(PASS_NUMBER). ...
+            Correlation.SpectralWeighting.APC.DoTemporalEnsemble;
+        
+        % Read them
+        if apc_do_temporal_ensemble            
+            % Read the pre-computed standard deviations
+            apc_std_dev_x = ...
+            	JOBFILE.Processing(PASS_NUMBER). ...
+                Results.Filtering.APC.Diameter.X(:, 1);  
+            apc_std_dev_y = ...
+                JOBFILE.Processing(PASS_NUMBER). ...
+                Results.Filtering.APC.Diameter.Y(:, 1);
+            
+            % Check whether any of the apc standard 
+            % deviations were updated from NaN.
+            % If not, then no filters were ever computed.
+            filters_were_pre_computed = any(~isnan(apc_std_dev_x));
+            
+        end
 end
+
 
 % Make the list of particle diameters
 % for the static methods
@@ -143,16 +172,38 @@ switch lower(ensemble_domain_string)
                         
             % Switch between correlation methods
             switch lower(spectral_weighting_method_string)
+                
+                % SCC: Set the spectral magnitude as the weighting filter
                 case 'scc'           
                     spectral_filter_temp = spectral_corr_mag;
-                    
+                
+                % APC: Use a dynamically-computed weighting filter.
                 case 'apc'  
                     
-                    % Calculate the APC filter
-                    [spectral_filter_temp, filter_std_y, filter_std_x] = ...
-                    calculate_apc_filter(cross_corr_spectral, ...
-                    particle_diameter, apc_method);
-                
+                    % If the temporal ensemble was used to pre-compute
+                    % the APC filter, then just read those values.
+                    if apc_do_temporal_ensemble && filters_were_pre_computed
+                        
+                        % Read the horizontal standard deviation
+                        % of the filter
+                        filter_std_x = apc_std_dev_x(k);
+                        filter_std_y = apc_std_dev_y(k);
+                        
+                        % Make the filter
+                        spectral_filter_temp = ...
+                            make_gaussian_spectral_filter(...
+                            region_height, region_width, ...
+                            filter_std_y, filter_std_x);
+                    
+                    % If the temporal ensemble wasn't used to pre-compute
+                    % the APC filter, then compute it here.
+                    else
+                        % Calculate the APC filter
+                        [spectral_filter_temp, filter_std_y, filter_std_x] = ...
+                        calculate_apc_filter(cross_corr_spectral, ...
+                        particle_diameter, apc_method);
+                    end
+
                     % Equivalent particle diameter in the columns
                     % direction, calculated from the APC filter.
                     particle_diameter_list_x(k) = filter_std_dev_to_particle_diameter(...

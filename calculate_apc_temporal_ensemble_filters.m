@@ -24,16 +24,12 @@ JOBFILE = discrete_window_offset(JOBFILE, PASS_NUMBER);
 % Allocate the results
 JOBFILE = allocate_results(JOBFILE, PASS_NUMBER);
 
-% Set the spectral weighting method to APC
-spectral_weighting_method = 'apc';
-
 % Correlation grid points
 grid_correlate_x = JOBFILE.Processing(PASS_NUMBER).Grid.Points.Correlate.X;
 grid_correlate_y = JOBFILE.Processing(PASS_NUMBER).Grid.Points.Correlate.Y;
 
 % Full list of grid points
 grid_full_x = JOBFILE.Processing(PASS_NUMBER).Grid.Points.Full.X;
-grid_full_y = JOBFILE.Processing(PASS_NUMBER).Grid.Points.Full.Y;
 
 % Indices of grid points to correlate
 grid_indices = JOBFILE.Processing(PASS_NUMBER). ...
@@ -57,24 +53,6 @@ iterative_method = JOBFILE.Processing(1).Iterative.Method;
 % Determine whether deform is requested
 deform_requested = ~isempty(regexpi(iterative_method, 'def'));
 
-% Subpixel fit parameters
-%
-% Estimated particle diameter
-% % % TO DO: 
-% % % Make a function called get_rpc_diameter(JOBFILE, PASS_NUMBER)
-particle_diameter = ...
-   JOBFILE.Processing(PASS_NUMBER). ...
-   Correlation.EstimatedParticleDiameter;
-
-% Read the APC parameters
-apc_field = JOBFILE.Processing(PASS_NUMBER).Correlation.SpectralWeighting.APC;
-if isfield(apc_field, 'Method')
-    apc_method = lower(...
-    JOBFILE.Processing(PASS_NUMBER).Correlation.SpectralWeighting.APC.Method);
-else
-    apc_method = 'magnitude';
-end
-
 % Make the spatial windows
 [spatial_window_01, spatial_window_02] = ...
     make_spatial_windows(JOBFILE, PASS_NUMBER);
@@ -87,10 +65,6 @@ cross_corr_array = zeros(...
 % that the job will perform
 % (this is just for printing)
 num_passes = determine_number_of_passes(JOBFILE);
-
-% % Allocate arrays to hold vectors
-% tx_temp = nan(num_regions_full, num_pairs_correlate);
-% ty_temp = nan(num_regions_full, num_pairs_correlate);
 
 % Allocate arrays to hold particle diameters
 dp_y_full = nan(num_regions_full, num_pairs_correlate);
@@ -108,8 +82,7 @@ for n = 1 : num_pairs_correlate
     [~, file_name_02] = fileparts(image_path_02);
     
     % Inform the use
-    fprintf(1, '%s Pass %d of %d, pair %d of %d\n', ...
-        upper(spectral_weighting_method),  ...
+    fprintf(1, 'APC Ensemble filter calculation: pass %d of %d, pair %d of %d\n', ...
         PASS_NUMBER, num_passes, n, num_pairs_correlate);
     fprintf(1, '%s and %s\n', file_name_01, file_name_02);
    
@@ -207,13 +180,6 @@ for n = 1 : num_pairs_correlate
         [region_height, region_width], ...
         grid_correlate_x, grid_correlate_y);
     
-    % Inform the user that correlations 
-    % are about to happen.
-    fprintf(1, 'Correlating image pair...\n');
-    
-    % Tic tock
-    t1 = tic;
-    
     % Loop over the regions
     for k = 1 : num_regions_correlate
         
@@ -242,13 +208,6 @@ for n = 1 : num_pairs_correlate
                     cross_corr_array(:, :, k) + ...
                     cross_corr_spectral;    
     end
-    
-    % End timer
-    t2 = toc(t1);
-    
-    % Inform the user that correlations finished.
-    fprintf(1, 'Correlated %d regions in %02f seconds.\n', ...
-        num_regions_correlate, t2);
     
     % Save the correlation planes to the jobfile.
     % This is done to avoid passing multiple variables
